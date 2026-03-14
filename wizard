@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard: Middle-earth Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=MedievalSharp&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ring-gold: #ffd700;
+            --parchment: #f4e4bc;
+            --deep-forest: #0a0a0a;
+            --elven-green: #2d5a27;
+            --glass-bg: rgba(10, 25, 10, 0.60); 
+        }
+
+        body {
+            margin: 0; background-color: var(--deep-forest); color: var(--parchment);
+            font-family: 'Quicksand', sans-serif; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        #bg-map {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: url('image_4de622.jpg') no-repeat center center;
+            background-size: cover; 
+            filter: brightness(0.6) contrast(1.1);
+        }
+
+        .journey-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            pointer-events: none;
+        }
+
+        .traveler {
+            display: flex; align-items: flex-end;
+            offset-path: path('M 50,150 Q 300,50 500,250 T 950,400'); 
+            animation: travel 45s infinite linear;
+            position: absolute;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+            will-change: offset-distance, transform;
+            transform: translateZ(0); 
+        }
+
+        @keyframes travel {
+            0% { offset-distance: 0%; transform: scaleX(-1); }
+            100% { offset-distance: 100%; transform: scaleX(-1); }
+        }
+
+        .main-container {
+            display: flex; gap: 20px; width: 95%; max-width: 1000px; 
+            align-items: flex-start; z-index: 10;
+        }
+
+        .app-box {
+            background: var(--glass-bg); 
+            border: 2px solid var(--ring-gold);
+            padding: 2rem; border-radius: 12px; flex: 2;
+            box-shadow: 0 0 25px rgba(0,0,0,0.7);
+            text-align: center; backdrop-filter: blur(4px);
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .score-sidebar {
+            background: var(--glass-bg);
+            border: 2px solid var(--ring-gold);
+            padding: 1.5rem; border-radius: 12px; flex: 0.8;
+            min-width: 220px; position: sticky; top: 20px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 25px rgba(0,0,0,0.7);
+        }
+
+        h1, h3 { font-family: 'Cinzel', serif; color: var(--ring-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .subtitle { font-family: 'MedievalSharp'; color: #ccc; margin-bottom: 20px; }
+
+        .setting { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-family: 'MedievalSharp'; margin-bottom: 5px; color: var(--ring-gold); }
+        
+        input, select {
+            width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--ring-gold);
+            background: rgba(0,0,0,0.7); color: white; font-size: 1rem; 
+            box-sizing: border-box; 
+        }
+        
+        input:focus, select:focus { outline: 2px solid var(--ring-gold); }
+
+        button {
+            width: 100%; background: var(--elven-green); color: white; border: 1px solid var(--ring-gold);
+            padding: 15px; font-family: 'Cinzel'; font-weight: bold; cursor: pointer;
+            border-radius: 6px; transition: 0.3s; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
+            box-sizing: border-box;
+        }
+        button:hover { background: #1f3d1b; box-shadow: 0 0 15px rgba(45, 90, 39, 0.8); transform: translateY(-2px); }
+
+        button.secondary { background: transparent; color: var(--ring-gold); border: 1px solid var(--ring-gold); font-size: 0.8rem; margin-top: 5px; }
+        button.secondary:hover { background: rgba(255, 215, 0, 0.1); box-shadow: none; transform: none; }
+
+        .player-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.08); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.2); }
+        .player-row input { width: 70px; text-align: center; }
+        
+        .side-score-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.2); font-size: 1.1rem; }
+        .delta { font-size: 0.85rem; font-weight: bold; margin-left: 5px; }
+        .pos { color: #44ff44; } .neg { color: #ff4444; }
+
+        .trick-counter {
+            background: rgba(0, 0, 0, 0.5); border: 1px dashed var(--ring-gold);
+            padding: 12px; margin-bottom: 15px; border-radius: 8px; font-size: 1.1rem;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; align-items: center; }
+            .score-sidebar { width: 100%; position: relative; top: 0; order: 2; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="bg-map"></div>
+
+<div class="journey-overlay">
+    <div class="traveler">
+        <span style="font-size: 2.5rem; line-height: 1;">🐎</span>
+        <svg width="45" height="35" viewBox="0 0 45 35" style="margin-left: -12px; margin-bottom: 2px; z-index: -1;">
+            <g stroke="#1a0f08" stroke-width="1.5">
+                <line x1="0" y1="18" x2="15" y2="18" stroke-width="2" />
+                <path d="M 14 10 Q 18 2 24 10 Z" fill="#a68a68" stroke-width="1"/>
+                <path d="M 22 10 Q 28 0 34 10 Z" fill="#8c7355" stroke-width="1"/>
+                <polygon points="10,10 38,10 34,22 12,22" fill="#4a2e15" />
+                <line x1="18" y1="10" x2="19" y2="22" />
+                <line x1="26" y1="10" x2="26" y2="22" />
+                <circle cx="24" cy="24" r="8" fill="#362210" />
+                <circle cx="24" cy="24" r="2" fill="#1a0f08" />
+                <line x1="16" y1="24" x2="32" y2="24" />
+                <line x1="24" y1="16" x2="24" y2="32" />
+                <line x1="18.3" y1="18.3" x2="29.7" y2="29.7" />
+                <line x1="18.3" y1="29.7" x2="29.7" y2="18.3" />
+            </g>
+        </svg>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="app-box" id="setupScreen">
+        <h1>Wizard</h1>
+        <p class="subtitle">The Council of Scorers</p>
+        
+        <div class="setting">
+            <label>Players (3-10)</label>
+            <select id="pCount" onchange="calculateDeck()">
+                <option value="3">3 Players</option>
+                <option value="4" selected>4 Players</option>
+                <option value="5">5 Players</option>
+                <option value="6">6 Players</option>
+                <option value="7">7 Players</option>
+                <option value="8">8 Players</option>
+                <option value="9">9 Players</option>
+                <option value="10">10 Players</option>
+            </select>
+        </div>
+        
+        <div class="setting">
+            <label>Deck Type</label>
+            <select id="deckType" onchange="calculateDeck()">
+                <option value="60">Official Wizard Deck (60 cards)</option>
+                <option value="52">Standard Deck (52 cards)</option>
+                <option value="56">Standard Deck + 4 Jokers (56 cards)</option>
+            </select>
+        </div>
+        
+        <div class="setting">
+            <label>Game Length</label>
+            <select id="gameLengthType" onchange="calculateDeck()">
+                <option value="full">Full Game (Max rounds)</option>
+                <option value="custom">Custom Rounds</option>
+            </select>
+        </div>
+        
+        <div class="setting" id="customRoundsDiv" style="display:none;">
+            <label>Number of Rounds</label>
+            <input type="number" id="customRounds" value="10" min="1" oninput="calculateDeck()">
+        </div>
+        
+        <div id="deckReport" class="inventory-hint" style="background: rgba(45, 90, 39, 0.4); border-left: 4px solid var(--elven-green); padding: 15px; margin: 20px 0;"></div>
+        <button onclick="goToNameScreen()">Begin the Quest</button>
+    </div>
+
+    <div class="app-box hidden" id="nameScreen">
+        <h1>The Fellowship</h1>
+        <p class="subtitle">Name your champions</p>
+        
+        <div id="nameInputsContainer"></div>
+        
+        <button onclick="confirmNamesAndStart()">Forge the Covenant</button>
+        <button class="secondary" onclick="goBackToSetup()">← Back to Setup</button>
+    </div>
+
+    <div class="app-box hidden" id="gameScreen">
+        <h1 id="roundHeader">Round 1</h1>
+        <p class="subtitle" id="phaseSubtitle">Bidding Phase</p>
+        
+        <div id="trickCounter" class="trick-counter"></div>
+
+        <div id="playerInputs"></div>
+        <button id="submitBtn" onclick="submitPhase()">Lock in Bids</button>
+        <button id="backBtn" class="secondary hidden" onclick="handleGameScreenBack()"></button>
+    </div>
+
+    <div class="app-box hidden" id="scoreScreen">
+        <h1>Round Complete</h1>
+        <p class="subtitle">The Chronicle has been updated.</p>
+        <button onclick="nextRound()">Continue Journey</button>
+        <button class="secondary" onclick="undoScoreAndGoBack()">← Edit Tricks Won (Undo Scores)</button>
+    </div>
+
+    <div class="score-sidebar hidden" id="sidebar">
+        <h3>The Chronicle</h3>
+        <div id="sidebarContent"></div>
+    </div>
+</div>
+
+<script>
+    let players = [];
+    let currentRound = 1;
+    let maxRounds = 10;
+    let currentPhase = 'bidding';
+
+    function sanitizeHTML(str) {
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+        if (players.length > 0 && currentRound <= maxRounds) {
+            e.preventDefault();
+            e.returnValue = 'Are you sure you want to abandon the quest? All scores will be lost.';
+        }
+    });
+
+    function calculateDeck() {
+        const p = parseInt(document.getElementById('pCount').value) || 3;
+        const deckSize = parseInt(document.getElementById('deckType').value);
+        const lengthType = document.getElementById('gameLengthType').value;
+        const customDiv = document.getElementById('customRoundsDiv');
+        
+        if (lengthType === 'full') {
+            customDiv.style.display = 'none';
+            maxRounds = Math.floor(deckSize / p);
+        } else {
+            customDiv.style.display = 'block';
+            let parsedRounds = parseInt(document.getElementById('customRounds').value);
+            maxRounds = (isNaN(parsedRounds) || parsedRounds < 1) ? 1 : parsedRounds;
+        }
+
+        const maxCards = p * maxRounds;
+        const decks = Math.ceil(maxCards / deckSize);
+        document.getElementById('deckReport').innerHTML = `<strong>Deckmaster's Math:</strong><br>Max Cards Needed at Once: <strong>${sanitizeHTML(maxCards.toString())}</strong><br>Decks Required: <strong>${sanitizeHTML(decks.toString())}</strong>`;
+    }
+
+    function goToNameScreen() {
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('nameScreen').classList.remove('hidden');
+        
+        const pCount = parseInt(document.getElementById('pCount').value);
+        const container = document.getElementById('nameInputsContainer');
+        
+        let htmlBuffer = '';
+        for (let i = 0; i < pCount; i++) {
+            let defaultName = players[i] ? sanitizeHTML(players[i].name) : `Hero ${i + 1}`;
+            htmlBuffer += `
+                <div class="setting">
+                    <label>Player ${i + 1}</label>
+                    <input type="text" id="playerName_${i}" value="${defaultName}" maxlength="15" placeholder="Enter name...">
+                </div>
+            `;
+        }
+        container.innerHTML = htmlBuffer;
+    }
+
+    function goBackToSetup() {
+        document.getElementById('nameScreen').classList.add('hidden');
+        document.getElementById('setupScreen').classList.remove('hidden');
+    }
+
+    function confirmNamesAndStart() {
+        const pCount = parseInt(document.getElementById('pCount').value);
+        
+        players = [];
+        for (let i = 0; i < pCount; i++) {
+            let inputVal = document.getElementById(`playerName_${i}`).value.trim();
+            let finalName = inputVal !== "" ? inputVal : `Hero ${i + 1}`;
+            players.push({ name: finalName, score: 0, bid: 0, lastDelta: 0, lastTricks: 0 });
+        }
+        
+        document.getElementById('nameScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        document.getElementById('sidebar').classList.remove('hidden');
+        
+        updateSidebar();
+        setupRoundUI();
+    }
+
+    function updateSidebar() {
+        const content = document.getElementById('sidebarContent');
+        let htmlBuffer = '';
+        [...players].sort((a,b) => b.score - a.score).forEach(p => {
+            const safeName = sanitizeHTML(p.name);
+            const deltaClass = p.lastDelta >= 0 ? 'pos' : 'neg';
+            const deltaText = p.lastDelta !== 0 ? `<span class="delta ${deltaClass}">(${p.lastDelta > 0 ? '+' : ''}${p.lastDelta})</span>` : '';
+            htmlBuffer += `<div class="side-score-item"><span>${safeName}</span><span>${p.score}${deltaText}</span></div>`;
+        });
+        content.innerHTML = htmlBuffer;
+    }
+
+    function updateTrickCounter() {
+        let sum = 0;
+        for (let i = 0; i < players.length; i++) {
+            let val = parseInt(document.getElementById(`val_${i}`).value) || 0;
+            sum += val;
+        }
+        
+        let diff = currentRound - sum;
+        let counterDiv = document.getElementById('trickCounter');
+
+        if (currentPhase === 'bidding') {
+            counterDiv.innerHTML = `Total Bids: <strong>${sum}</strong> <span style="color:#aaa; font-size: 0.9rem;">(Available: ${currentRound})</span>`;
+        } else {
+            let statusColor = diff === 0 ? '#44ff44' : (diff < 0 ? '#ff4444' : 'var(--ring-gold)');
+            let diffText = diff < 0 ? `Over by: <strong style="color:${statusColor}">${Math.abs(diff)}</strong>` : `Remaining: <strong style="color:${statusColor}">${diff}</strong>`;
+            
+            counterDiv.innerHTML = `Accounted: <strong>${sum}</strong> / ${currentRound} | ${diffText}`;
+        }
+    }
+
+    function setupRoundUI() {
+        document.getElementById('roundHeader').innerText = `Round ${currentRound} of ${maxRounds}`;
+        const container = document.getElementById('playerInputs');
+        const backBtn = document.getElementById('backBtn');
+        
+        if (currentPhase === 'bidding') {
+            document.getElementById('phaseSubtitle').innerText = "Bidding Phase: How many tricks will you win?";
+            document.getElementById('submitBtn').innerText = "Lock in Bids";
+            backBtn.innerText = currentRound === 1 ? "← Edit Players (Back to Names)" : "← Back to Previous Round";
+        } else {
+            document.getElementById('phaseSubtitle').innerText = "Results Phase: How many tricks did you ACTUALLY win?";
+            document.getElementById('submitBtn').innerText = "Calculate Scores";
+            backBtn.innerText = "← Edit Bids / Correct Error";
+        }
+        backBtn.classList.remove('hidden');
+
+        let htmlBuffer = '';
+        players.forEach((p, i) => {
+            const safeName = sanitizeHTML(p.name);
+            let val = (currentPhase === 'bidding') ? p.bid : p.lastTricks;
+            
+            htmlBuffer += `<div class="player-row">
+                <span><strong>${safeName}</strong> ${currentPhase==='tricks'?`<br><small style="color:var(--ring-gold)">Bid: ${p.bid}</small>`:''}</span>
+                <input type="number" id="val_${i}" value="${val}" min="0" max="${currentRound}" oninput="updateTrickCounter()">
+            </div>`;
+        });
+        container.innerHTML = htmlBuffer;
+        
+        updateTrickCounter();
+    }
+
+    function handleGameScreenBack() {
+        if (currentPhase === 'tricks') {
+            currentPhase = 'bidding';
+            setupRoundUI();
+        } else if (currentPhase === 'bidding') {
+            if (currentRound === 1) {
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('sidebar').classList.add('hidden');
+                goToNameScreen(); 
+            } else {
+                currentRound--;
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('scoreScreen').classList.remove('hidden');
+            }
+        }
+    }
+
+    function undoScoreAndGoBack() {
+        players.forEach(p => {
+            p.score -= p.lastDelta; 
+            p.lastDelta = 0; 
+        });
+        updateSidebar();
+        
+        document.getElementById('scoreScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        currentPhase = 'tricks';
+        setupRoundUI();
+    }
+
+    function submitPhase() {
+        if (currentPhase === 'bidding') {
+            for (let i = 0; i < players.length; i++) {
+                let val = parseInt(document.getElementById(`val_${i}`).value);
+                if (isNaN(val) || val < 0 || val > currentRound) {
+                    alert(`Invalid bid for ${players[i].name}. Bid must be between 0 and ${currentRound}.`);
+                    return;
+                }
+                players[i].bid = val;
+            }
+            currentPhase = 'tricks';
+            setupRoundUI();
+        } else {
+            let total = 0;
+            const entries = [];
+            
+            for (let i = 0; i < players.length; i++) {
+                let won = parseInt(document.getElementById(`val_${i}`).value);
+                if (isNaN(won) || won < 0 || won > currentRound) {
+                    alert(`Invalid tricks won for ${players[i].name}. Must be between 0 and ${currentRound}.`);
+                    return;
+                }
+                total += won;
+                entries.push(won);
+            }
+            
+            if (total !== currentRound) {
+                alert(`Math Error! You entered a total of ${total} tricks won, but there are exactly ${currentRound} tricks in this round. Please correct the numbers.`);
+                return;
+            }
+
+            players.forEach((p, i) => {
+                const won = entries[i];
+                p.lastTricks = won; 
+                let roundScore = 0;
+                
+                if (won === p.bid) {
+                    roundScore = 20 + (won * 10);
+                } else {
+                    roundScore = Math.abs(won - p.bid) * -10;
+                }
+                
+                p.score += roundScore;
+                p.lastDelta = roundScore;
+            });
+            
+            updateSidebar();
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('scoreScreen').classList.remove('hidden');
+        }
+    }
+
+    function nextRound() {
+        if(currentRound >= maxRounds) {
+            let winner = [...players].sort((a,b) => b.score - a.score)[0];
+            alert(`Journey's End! ${winner.name} rules Middle-earth with ${winner.score} points!`);
+            return;
+        }
+        
+        // Fix: Reset both the previous round's tricks and the bids to 0
+        players.forEach(p => {
+            p.bid = 0;
+            p.lastTricks = 0;
+        });
+        
+        currentRound++;
+        currentPhase = 'bidding';
+        document.getElementById('scoreScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        setupRoundUI();
+    }
+
+    calculateDeck();
+</script>
+</body>
+</html>

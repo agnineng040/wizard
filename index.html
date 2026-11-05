@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wizard: Middle-earth Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=MedievalSharp&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,36 +18,16 @@
 
         body {
             margin: 0; background-color: var(--deep-forest); color: var(--parchment);
-            font-family: 'Quicksand', sans-serif; min-height: 100vh;
+            font-family: 'Quicksand', sans-serif; min-height: 100vh; min-height: 100dvh;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
         }
 
         #bg-map {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-            background: url('image_4de622.jpg') no-repeat center center;
+            background: #14231a url('image_4de622.jpg') no-repeat center center; /* solid colour shows if the image is missing */
             background-size: cover; 
             filter: brightness(0.6) contrast(1.1);
-        }
-
-        .journey-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            pointer-events: none;
-        }
-
-        .traveler {
-            display: flex; align-items: flex-end;
-            offset-path: path('M 50,150 Q 300,50 500,250 T 950,400'); 
-            animation: travel 45s infinite linear;
-            position: absolute;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
-            will-change: offset-distance, transform;
-            transform: translateZ(0); 
-        }
-
-        @keyframes travel {
-            0% { offset-distance: 0%; transform: scaleX(-1); }
-            100% { offset-distance: 100%; transform: scaleX(-1); }
         }
 
         .main-container {
@@ -72,10 +54,10 @@
         }
 
         h1, h3 { font-family: 'Cinzel', serif; color: var(--ring-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .subtitle { font-family: 'MedievalSharp'; color: #ccc; margin-bottom: 20px; }
+        .subtitle { font-family: 'MedievalSharp', Georgia, serif; color: #ccc; margin-bottom: 20px; }
 
         .setting { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-family: 'MedievalSharp'; margin-bottom: 5px; color: var(--ring-gold); }
+        label { display: block; font-family: 'MedievalSharp', Georgia, serif; margin-bottom: 5px; color: var(--ring-gold); }
         
         input, select {
             width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--ring-gold);
@@ -87,7 +69,7 @@
 
         button {
             width: 100%; background: var(--elven-green); color: white; border: 1px solid var(--ring-gold);
-            padding: 15px; font-family: 'Cinzel'; font-weight: bold; cursor: pointer;
+            padding: 15px; font-family: 'Cinzel', Georgia, serif; font-weight: bold; cursor: pointer;
             border-radius: 6px; transition: 0.3s; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
             box-sizing: border-box;
         }
@@ -109,8 +91,12 @@
         }
 
         .hidden { display: none !important; }
+        .error-msg { background: rgba(255,68,68,0.15); border: 1px solid #ff4444; color: #ffb3b3; padding: 10px; border-radius: 6px; margin-bottom: 10px; text-align: left; }
 
         @media (max-width: 768px) {
+            /* Let the whole page scroll on phones so the scoreboard below the form is reachable */
+            body { overflow-y: auto; align-items: flex-start; padding: 10px 0; }
+            .app-box { max-height: none; overflow-y: visible; }
             .main-container { flex-direction: column; align-items: center; }
             .score-sidebar { width: 100%; position: relative; top: 0; order: 2; margin-top: 20px; }
         }
@@ -119,28 +105,6 @@
 <body>
 
 <div id="bg-map"></div>
-
-<div class="journey-overlay">
-    <div class="traveler">
-        <span style="font-size: 2.5rem; line-height: 1;">🐎</span>
-        <svg width="45" height="35" viewBox="0 0 45 35" style="margin-left: -12px; margin-bottom: 2px; z-index: -1;">
-            <g stroke="#1a0f08" stroke-width="1.5">
-                <line x1="0" y1="18" x2="15" y2="18" stroke-width="2" />
-                <path d="M 14 10 Q 18 2 24 10 Z" fill="#a68a68" stroke-width="1"/>
-                <path d="M 22 10 Q 28 0 34 10 Z" fill="#8c7355" stroke-width="1"/>
-                <polygon points="10,10 38,10 34,22 12,22" fill="#4a2e15" />
-                <line x1="18" y1="10" x2="19" y2="22" />
-                <line x1="26" y1="10" x2="26" y2="22" />
-                <circle cx="24" cy="24" r="8" fill="#362210" />
-                <circle cx="24" cy="24" r="2" fill="#1a0f08" />
-                <line x1="16" y1="24" x2="32" y2="24" />
-                <line x1="24" y1="16" x2="24" y2="32" />
-                <line x1="18.3" y1="18.3" x2="29.7" y2="29.7" />
-                <line x1="18.3" y1="29.7" x2="29.7" y2="18.3" />
-            </g>
-        </svg>
-    </div>
-</div>
 
 <div class="main-container">
     <div class="app-box" id="setupScreen">
@@ -180,10 +144,10 @@
         
         <div class="setting" id="customRoundsDiv" style="display:none;">
             <label>Number of Rounds</label>
-            <input type="number" id="customRounds" value="10" min="1" oninput="calculateDeck()">
+            <input type="number" id="customRounds" value="10" min="1" max="60" oninput="calculateDeck()">
         </div>
         
-        <div id="deckReport" class="inventory-hint" style="background: rgba(45, 90, 39, 0.4); border-left: 4px solid var(--elven-green); padding: 15px; margin: 20px 0;"></div>
+        <div id="resumeBox" class="hidden" style="background: rgba(255,215,0,0.12); border: 1px dashed var(--ring-gold); padding: 12px; margin-bottom: 15px; border-radius: 8px;"><strong>A quest is in progress.</strong><button onclick="resumeSavedGame()">Resume Saved Quest</button><button class="secondary" onclick="discardSavedGame()">Discard Saved Quest</button></div> class="inventory-hint" style="background: rgba(45, 90, 39, 0.4); border-left: 4px solid var(--elven-green); padding: 15px; margin: 20px 0;"></div>
         <button onclick="goToNameScreen()">Begin the Quest</button>
     </div>
 
@@ -204,14 +168,14 @@
         <div id="trickCounter" class="trick-counter"></div>
 
         <div id="playerInputs"></div>
-        <button id="submitBtn" onclick="submitPhase()">Lock in Bids</button>
+        <div id="errorMsg" class="error-msg hidden" role="alert"></div> onclick="submitPhase()">Lock in Bids</button>
         <button id="backBtn" class="secondary hidden" onclick="handleGameScreenBack()"></button>
     </div>
 
     <div class="app-box hidden" id="scoreScreen">
-        <h1>Round Complete</h1>
-        <p class="subtitle">The Chronicle has been updated.</p>
-        <button onclick="nextRound()">Continue Journey</button>
+        <h1 id="scoreTitle">Round Complete</h1>
+        <p class="subtitle" id="scoreSubtitle">The Chronicle has been updated.</p>
+        <button id="continueBtn" onclick="nextRound()">Continue Journey</button>
         <button class="secondary" onclick="undoScoreAndGoBack()">← Edit Tricks Won (Undo Scores)</button>
     </div>
 
@@ -226,15 +190,110 @@
     let currentRound = 1;
     let maxRounds = 10;
     let currentPhase = 'bidding';
+    let history = [];       // one entry per completed round: { bids: [], tricks: [], deltas: [] }
+    let gameActive = false; // true while a game is in progress (drives the unload warning)
+    let gameOver = false;
+    const MAX_CUSTOM_ROUNDS = 60;
 
+    // Escapes text for safe use in HTML content AND double/single-quoted attributes.
     function sanitizeHTML(str) {
-        const temp = document.createElement('div');
-        temp.textContent = str;
-        return temp.innerHTML;
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Strict integer read: returns NaN for empty, fractional, or non-numeric input.
+    function readInt(i) {
+        const raw = document.getElementById(`val_${i}`).value.trim();
+        if (raw === '') return NaN;
+        const n = Number(raw);
+        return Number.isInteger(n) ? n : NaN;
+    }
+
+    function scoreFor(bid, won) {
+        return won === bid ? 20 + won * 10 : Math.abs(won - bid) * -10;
+    }
+
+    // Scores are always derived from history, so undo/back can never drift them.
+    function recomputeScores() {
+        players.forEach((p, i) => {
+            p.score = history.reduce((sum, r) => sum + r.deltas[i], 0);
+            p.lastDelta = history.length ? history[history.length - 1].deltas[i] : 0;
+        });
+    }
+
+    // ---- Persistence: survive refreshes, crashes and mobile tab discards ----
+    const STORAGE_KEY = 'wizardScorer.v1';
+
+    function saveState() {
+        try {
+            if (!gameActive) { localStorage.removeItem(STORAGE_KEY); return; }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                players, history, currentRound, currentPhase, maxRounds,
+                screen: document.getElementById('scoreScreen').classList.contains('hidden') ? 'game' : 'score'
+            }));
+        } catch (e) { /* storage unavailable (private mode / quota): game still works, just unsaved */ }
+    }
+
+    function loadSavedState() {
+        try {
+            const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const n = s && Array.isArray(s.players) ? s.players.length : 0;
+            if (n < 3 || n > 10 || !Array.isArray(s.history)) return null;
+            const okHistory = s.history.every(r => r && [r.bids, r.tricks, r.deltas].every(a => Array.isArray(a) && a.length === n));
+            const okPlayers = s.players.every(p => p && typeof p.name === 'string');
+            const okRound = Number.isInteger(s.currentRound) && s.currentRound >= 1 && s.currentRound <= s.maxRounds;
+            if (!okHistory || !okPlayers || !okRound || s.history.length > s.currentRound) return null;
+            return s;
+        } catch (e) { return null; }
+    }
+
+    function resumeSavedGame() {
+        const s = loadSavedState();
+        if (!s) { discardSavedGame(); return; }
+        players = s.players.map(p => ({
+            name: String(p.name), score: 0, lastDelta: 0,
+            bid: Number.isInteger(p.bid) ? p.bid : 0,
+            lastTricks: Number.isInteger(p.lastTricks) ? p.lastTricks : 0
+        }));
+        history = s.history;
+        currentRound = s.currentRound;
+        maxRounds = s.maxRounds;
+        currentPhase = s.currentPhase === 'tricks' ? 'tricks' : 'bidding';
+        gameActive = true;
+        gameOver = false;
+        recomputeScores();
+
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('sidebar').classList.remove('hidden');
+        if (s.screen === 'score' && history.length === currentRound) {
+            showScoreScreen();
+        } else {
+            updateSidebar(false);
+            document.getElementById('gameScreen').classList.remove('hidden');
+            setupRoundUI();
+        }
+    }
+
+    function discardSavedGame() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        document.getElementById('resumeBox').classList.add('hidden');
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+    }
+    function clearError() {
+        document.getElementById('errorMsg').classList.add('hidden');
     }
 
     window.addEventListener('beforeunload', function (e) {
-        if (players.length > 0 && currentRound <= maxRounds) {
+        if (gameActive && !gameOver) {
             e.preventDefault();
             e.returnValue = 'Are you sure you want to abandon the quest? All scores will be lost.';
         }
@@ -252,15 +311,17 @@
         } else {
             customDiv.style.display = 'block';
             let parsedRounds = parseInt(document.getElementById('customRounds').value);
-            maxRounds = (isNaN(parsedRounds) || parsedRounds < 1) ? 1 : parsedRounds;
+            maxRounds = (isNaN(parsedRounds) || parsedRounds < 1) ? 1 : Math.min(parsedRounds, MAX_CUSTOM_ROUNDS);
         }
 
         const maxCards = p * maxRounds;
         const decks = Math.ceil(maxCards / deckSize);
-        document.getElementById('deckReport').innerHTML = `<strong>Deckmaster's Math:</strong><br>Max Cards Needed at Once: <strong>${sanitizeHTML(maxCards.toString())}</strong><br>Decks Required: <strong>${sanitizeHTML(decks.toString())}</strong>`;
+        document.getElementById('deckReport').innerHTML = `<strong>Deckmaster's Math:</strong><br>Max Cards Needed at Once: <strong>${maxCards}</strong><br>Decks Required: <strong>${decks}</strong>`;
     }
 
     function goToNameScreen() {
+        gameActive = false;
+        saveState();
         document.getElementById('setupScreen').classList.add('hidden');
         document.getElementById('nameScreen').classList.remove('hidden');
         
@@ -292,24 +353,37 @@
         for (let i = 0; i < pCount; i++) {
             let inputVal = document.getElementById(`playerName_${i}`).value.trim();
             let finalName = inputVal !== "" ? inputVal : `Hero ${i + 1}`;
+            // Keep names unique so the Chronicle is never ambiguous
+            const base = finalName;
+            let n = 2;
+            while (players.some(p => p.name.toLowerCase() === finalName.toLowerCase())) {
+                finalName = `${base} (${n++})`;
+            }
             players.push({ name: finalName, score: 0, bid: 0, lastDelta: 0, lastTricks: 0 });
         }
-        
+
+        history = [];
+        currentRound = 1;
+        currentPhase = 'bidding';
+        gameActive = true;
+        gameOver = false;
+
         document.getElementById('nameScreen').classList.add('hidden');
         document.getElementById('gameScreen').classList.remove('hidden');
         document.getElementById('sidebar').classList.remove('hidden');
         
-        updateSidebar();
+        updateSidebar(false);
         setupRoundUI();
     }
 
-    function updateSidebar() {
+    // showDelta: only show last round's +/- on the round-complete screen
+    function updateSidebar(showDelta) {
         const content = document.getElementById('sidebarContent');
         let htmlBuffer = '';
         [...players].sort((a,b) => b.score - a.score).forEach(p => {
             const safeName = sanitizeHTML(p.name);
             const deltaClass = p.lastDelta >= 0 ? 'pos' : 'neg';
-            const deltaText = p.lastDelta !== 0 ? `<span class="delta ${deltaClass}">(${p.lastDelta > 0 ? '+' : ''}${p.lastDelta})</span>` : '';
+            const deltaText = (showDelta && p.lastDelta !== 0) ? `<span class="delta ${deltaClass}">(${p.lastDelta > 0 ? '+' : ''}${p.lastDelta})</span>` : '';
             htmlBuffer += `<div class="side-score-item"><span>${safeName}</span><span>${p.score}${deltaText}</span></div>`;
         });
         content.innerHTML = htmlBuffer;
@@ -318,8 +392,8 @@
     function updateTrickCounter() {
         let sum = 0;
         for (let i = 0; i < players.length; i++) {
-            let val = parseInt(document.getElementById(`val_${i}`).value) || 0;
-            sum += val;
+            const v = readInt(i);
+            if (!isNaN(v) && v >= 0) sum += v; // ignore empty/negative/fractional entries
         }
         
         let diff = currentRound - sum;
@@ -364,32 +438,87 @@
         container.innerHTML = htmlBuffer;
         
         updateTrickCounter();
+        clearError();
+        saveState();
     }
 
     function handleGameScreenBack() {
         if (currentPhase === 'tricks') {
+            // Keep any results typed but not yet locked in
+            players.forEach((p, i) => {
+                const v = readInt(i);
+                if (!isNaN(v) && v >= 0) p.lastTricks = v;
+            });
             currentPhase = 'bidding';
             setupRoundUI();
         } else if (currentPhase === 'bidding') {
             if (currentRound === 1) {
                 document.getElementById('gameScreen').classList.add('hidden');
                 document.getElementById('sidebar').classList.add('hidden');
-                goToNameScreen(); 
+                goToNameScreen();
             } else {
+                // Previous round is still fully recorded in history
                 currentRound--;
-                document.getElementById('gameScreen').classList.add('hidden');
-                document.getElementById('scoreScreen').classList.remove('hidden');
+                showScoreScreen();
             }
         }
     }
 
+    function showScoreScreen() {
+        recomputeScores();
+        gameOver = currentRound >= maxRounds;
+
+        const title = document.getElementById('scoreTitle');
+        const subtitle = document.getElementById('scoreSubtitle');
+        const btn = document.getElementById('continueBtn');
+        if (gameOver) {
+            const top = Math.max(...players.map(p => p.score));
+            const winners = players.filter(p => p.score === top).map(p => p.name);
+            title.textContent = "Journey's End";
+            subtitle.textContent = winners.length > 1
+                ? `A tie! ${winners.join(' & ')} share the crown with ${top} points.`
+                : `${winners[0]} rules Middle-earth with ${top} points!`;
+            btn.textContent = 'Begin a New Quest';
+        } else {
+            title.textContent = 'Round Complete';
+            subtitle.textContent = 'The Chronicle has been updated.';
+            btn.textContent = 'Continue Journey';
+        }
+
+        updateSidebar(true);
+        clearError();
+        document.getElementById('gameScreen').classList.add('hidden');
+        document.getElementById('scoreScreen').classList.remove('hidden');
+        saveState();
+    }
+
+    function resetGame() {
+        players = [];
+        history = [];
+        currentRound = 1;
+        currentPhase = 'bidding';
+        gameActive = false;
+        gameOver = false;
+        document.getElementById('scoreScreen').classList.add('hidden');
+        document.getElementById('sidebar').classList.add('hidden');
+        document.getElementById('setupScreen').classList.remove('hidden');
+        saveState();
+        calculateDeck();
+    }
+
     function undoScoreAndGoBack() {
-        players.forEach(p => {
-            p.score -= p.lastDelta; 
-            p.lastDelta = 0; 
+        const r = history[currentRound - 1];
+        if (!r) return;
+        // Restore that round's bids/tricks for editing, then remove its record
+        players.forEach((p, i) => {
+            p.bid = r.bids[i];
+            p.lastTricks = r.tricks[i];
         });
-        updateSidebar();
-        
+        history.length = currentRound - 1;
+        gameOver = false;
+        recomputeScores();
+        updateSidebar(false);
+
         document.getElementById('scoreScreen').classList.add('hidden');
         document.getElementById('gameScreen').classList.remove('hidden');
         currentPhase = 'tricks';
@@ -399,9 +528,9 @@
     function submitPhase() {
         if (currentPhase === 'bidding') {
             for (let i = 0; i < players.length; i++) {
-                let val = parseInt(document.getElementById(`val_${i}`).value);
+                let val = readInt(i);
                 if (isNaN(val) || val < 0 || val > currentRound) {
-                    alert(`Invalid bid for ${players[i].name}. Bid must be between 0 and ${currentRound}.`);
+                    showError(`Invalid bid for ${players[i].name}. Bid must be a whole number between 0 and ${currentRound}.`);
                     return;
                 }
                 players[i].bid = val;
@@ -413,9 +542,9 @@
             const entries = [];
             
             for (let i = 0; i < players.length; i++) {
-                let won = parseInt(document.getElementById(`val_${i}`).value);
+                let won = readInt(i);
                 if (isNaN(won) || won < 0 || won > currentRound) {
-                    alert(`Invalid tricks won for ${players[i].name}. Must be between 0 and ${currentRound}.`);
+                    showError(`Invalid tricks won for ${players[i].name}. Must be a whole number between 0 and ${currentRound}.`);
                     return;
                 }
                 total += won;
@@ -423,39 +552,31 @@
             }
             
             if (total !== currentRound) {
-                alert(`Math Error! You entered a total of ${total} tricks won, but there are exactly ${currentRound} tricks in this round. Please correct the numbers.`);
+                showError(`Math Error! You entered a total of ${total} tricks won, but there are exactly ${currentRound} tricks in this round. Please correct the numbers.`);
                 return;
             }
 
-            players.forEach((p, i) => {
-                const won = entries[i];
-                p.lastTricks = won; 
-                let roundScore = 0;
-                
-                if (won === p.bid) {
-                    roundScore = 20 + (won * 10);
-                } else {
-                    roundScore = Math.abs(won - p.bid) * -10;
-                }
-                
-                p.score += roundScore;
-                p.lastDelta = roundScore;
+            players.forEach((p, i) => { p.lastTricks = entries[i]; });
+
+            // Record the round (replacing any stale entry); scores are derived from history
+            history.length = currentRound - 1;
+            history.push({
+                bids: players.map(p => p.bid),
+                tricks: entries.slice(),
+                deltas: players.map((p, i) => scoreFor(p.bid, entries[i]))
             });
-            
-            updateSidebar();
-            document.getElementById('gameScreen').classList.add('hidden');
-            document.getElementById('scoreScreen').classList.remove('hidden');
+
+            showScoreScreen();
         }
     }
 
     function nextRound() {
-        if(currentRound >= maxRounds) {
-            let winner = [...players].sort((a,b) => b.score - a.score)[0];
-            alert(`Journey's End! ${winner.name} rules Middle-earth with ${winner.score} points!`);
+        if (gameOver) {
+            resetGame();
             return;
         }
-        
-        // Fix: Reset both the previous round's tricks and the bids to 0
+
+        // Start the new round with blank bids and results
         players.forEach(p => {
             p.bid = 0;
             p.lastTricks = 0;
@@ -469,6 +590,7 @@
     }
 
     calculateDeck();
+    if (loadSavedState()) document.getElementById('resumeBox').classList.remove('hidden');
 </script>
 </body>
 </html>

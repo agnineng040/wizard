@@ -147,7 +147,8 @@
             <input type="number" id="customRounds" value="10" min="1" max="60" oninput="calculateDeck()">
         </div>
         
-        <div id="resumeBox" class="hidden" style="background: rgba(255,215,0,0.12); border: 1px dashed var(--ring-gold); padding: 12px; margin-bottom: 15px; border-radius: 8px;"><strong>A quest is in progress.</strong><button onclick="resumeSavedGame()">Resume Saved Quest</button><button class="secondary" onclick="discardSavedGame()">Discard Saved Quest</button></div> class="inventory-hint" style="background: rgba(45, 90, 39, 0.4); border-left: 4px solid var(--elven-green); padding: 15px; margin: 20px 0;"></div>
+        <div id="resumeBox" class="hidden" style="background: rgba(255,215,0,0.12); border: 1px dashed var(--ring-gold); padding: 12px; margin-bottom: 15px; border-radius: 8px;"><strong>A quest is in progress.</strong><button onclick="resumeSavedGame()">Resume Saved Quest</button><button class="secondary" onclick="discardSavedGame()">Discard Saved Quest</button></div>
+        <div id="deckReport" class="inventory-hint" style="background: rgba(45, 90, 39, 0.4); border-left: 4px solid var(--elven-green); padding: 15px; margin: 20px 0;"></div>
         <button onclick="goToNameScreen()">Begin the Quest</button>
     </div>
 
@@ -168,7 +169,8 @@
         <div id="trickCounter" class="trick-counter"></div>
 
         <div id="playerInputs"></div>
-        <div id="errorMsg" class="error-msg hidden" role="alert"></div> onclick="submitPhase()">Lock in Bids</button>
+        <div id="errorMsg" class="error-msg hidden" role="alert"></div>
+        <button id="submitBtn" onclick="submitPhase()">Lock in Bids</button>
         <button id="backBtn" class="secondary hidden" onclick="handleGameScreenBack()"></button>
     </div>
 
